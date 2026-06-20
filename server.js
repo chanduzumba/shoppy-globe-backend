@@ -2,6 +2,7 @@ import express from 'express' //import express for creating a server
 import dotenv from 'dotenv'
 import morgan from 'morgan' //import morgan for logging HTTP requests
 import connectDB  from './config/db.js'
+import productRoutes from './routes/products.routes.js'
 //configure dot env for reading env variables
 dotenv.config()
 // create and listen at port 5000 from env file
@@ -20,6 +21,9 @@ app.use(morgan('dev')); //use morgan for logging HTTP requests
 app.get('/' , (req,res)=>{
     res.send("HELLO FROM ROOT ROUTE")
 })
+
+//route to products
+productRoutes(app)
 
 //DB connection
 connectDB()
