@@ -10,7 +10,7 @@ const app = new express()
 
 //listen at port 5000
 app.listen(process.env.PORT, () => {
-    console.log('Server is running at port 5000')
+    console.log(`Server is running at port: ${process.env.PORT}`)
 })
 
 //middleware to parse incoming request bodies in JSON format

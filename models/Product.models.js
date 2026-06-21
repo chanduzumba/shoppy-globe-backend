@@ -1,3 +1,4 @@
+//Models Product.js
 import mongoose from "mongoose"; //importing mongoose to connect with db instance
 
 //Product Schema creation
