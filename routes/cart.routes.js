@@ -1,4 +1,4 @@
-import { addToCartController, deleteCartItemController, updateCartItemController } from "../controllers/cart.controller.js"
+import { addToCartController, deleteCartItemController, getCartItemsController, updateCartItemController } from "../controllers/cart.controller.js"
 
 //separate routes section for cart
 const cartRoutes = (app) => {
@@ -9,7 +9,8 @@ const cartRoutes = (app) => {
     app.put('/cart/:productId', updateCartItemController)
     //delete request to remove an item from cart
     app.delete('/cart/:productId', deleteCartItemController)
-
+    //get all cart items
+    app.get('/cart', getCartItemsController)
 }
 
 export default cartRoutes

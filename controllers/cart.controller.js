@@ -1,12 +1,24 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 import Product from "../models/Product.models.js";
 import Cart from "../models/Cart.models.js";
 //add to cart controller
 export const addToCartController = async (req, res) => {
   try {
     const { productId, quantity } = req.body; //destructure productid and quantity
-
-    console.log("prod id", productId);
+    //check if quantity is not 0 or less
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Quantity must be greater than 0" });
+    }
+    if (isNaN(productId)) {
+      //check if not a number
+      //return bad request as response
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
+    }
     //get product using id
     const product = await Product.findOne({ id: productId });
 
@@ -41,8 +53,8 @@ export const addToCartController = async (req, res) => {
     }
 
     //if item present in cart - true or false
-    const existingItem = cart.items.find(
-      (item) => item.product.toString() === productId,
+    const existingItem = cart.items.find((item) =>
+      item.product.equals(product._id),
     );
 
     //if item present increment quantity
@@ -90,15 +102,19 @@ export const updateCartItemController = async (req, res) => {
     const { productId } = req.params;
     req.user = {
       id: "6a38897bcb31534ba9fd6c3e",
-    };//testing
+    }; //testing
     // if quantity is not more than 0 return error
-     if (!Number.isInteger(quantity) || quantity < 1) {
-      return res.status(400).json({ success: false, message: "Quantity must be greater than 0" });
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Quantity must be greater than 0" });
     }
 
     //if product id not valid wrt obect id return error
     if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ success: false, message: "Invalid Product ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product ID" });
     }
 
     //get product to check stock
@@ -115,9 +131,8 @@ export const updateCartItemController = async (req, res) => {
     const cart = await Cart.findOneAndUpdate(
       { user: req.user.id, "items.product": productId },
       { $set: { "items.$.quantity": quantity } },
-      { new: true }
+      { new: true },
     );
-
 
     if (!cart) {
       return res.status(404).json({
@@ -145,12 +160,14 @@ export const deleteCartItemController = async (req, res) => {
   try {
     req.user = {
       id: "6a38897bcb31534ba9fd6c3e",
-    };//testing
+    }; //testing
     const { productId } = req.params;
 
     //product id validation
     if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ success: false, message: "Invalid Product ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product ID" });
     }
     //update after finding item with given product id using pull
     const updatedCart = await Cart.findOneAndUpdate(
@@ -167,7 +184,7 @@ export const deleteCartItemController = async (req, res) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     //if not found return error
@@ -182,6 +199,42 @@ export const deleteCartItemController = async (req, res) => {
       success: true,
       message: "Item removed from cart",
       cart: updatedCart,
+    });
+  } catch (error) {
+    //return error
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//get all cart items controller for a user
+export const getCartItemsController = async (req, res) => {
+  try {
+    req.user = {
+      id: "6a38897bcb31534ba9fd6c3e",
+    }; //testing
+    //find cart for a user and populate product from product collection
+    const cart = await Cart.findOne({
+      user: req.user.id,
+    }).populate("items.product");
+
+    //return empty cart items
+    if (!cart) {
+      return res.status(200).json({
+        success: true,
+        cart: {
+          items: [],
+        },
+      });
+    }
+
+    //return cart successfully
+    return res.status(200).json({
+      success: true,
+      count: cart.items.length,
+      cart,
     });
   } catch (error) {
     //return error
