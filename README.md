@@ -46,7 +46,11 @@ src/
 │   ├── auth.routes.js
 │   ├── cart.routes.js
 │   └── product.routes.js
+└── .env
+└── README.MD
+└── seed.js
 └── server.js
+└── package.json
 ```
 
 ## Installation
@@ -77,11 +81,42 @@ MONGO_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_256_bit_secret
 ```
 
+## Database Seeding
+
+Before starting the application for the first time, populate the database with product data.
+
+Run:
+
+```bash
+node seed.js
+```
+
+This script will:
+
+* Connect to your MongoDB Atlas database
+* Fetch product data from DummyJSON
+* Insert products into the `products` collection
+
+After successful execution, you should see:
+
+```bash
+194 products imported
+```
+
+> Note: Run the seed script only when you need to populate or refresh the product data.
+
+
 ### Run Development Server
 
 ```bash
 npm run dev
 ```
+The server will start on:
+
+```text
+http://localhost:5000
+```
+
 
 ### Run Production Server
 
