@@ -166,7 +166,13 @@ Response:
 ```json
 {
   "success": true,
-  "token": "jwt_token"
+  "message": "Login successful",
+  "token": "jwt_token",
+  "user": {
+    "id": "user_id",
+    "name": "Chandu",
+    "email": "test@gmail.com"
+  }
 }
 ```
 
@@ -320,9 +326,11 @@ Collections:
   title,
   description,
   price,
-  stock,
+  discountPercentage,
+  brand,
   category,
-  thumbnail
+  thumbnail,
+  images
 }
 ```
 
