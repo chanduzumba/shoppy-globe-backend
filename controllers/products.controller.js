@@ -5,9 +5,9 @@ export const getAllProductsController = async (req, res) => {
   //logic to get all data from DB
   try {
     const products = await Product.find(); // query to get all data
-    return res.status(200).json(products); //set response status as success and send json response
+    return res.status(200).json({success: true, products}); //set response status as success and send json response
   } catch (err) {
-    return res.status(500).json({ message: err.message }); //send error response
+    return res.status(500).json({ success: false, message: err.message }); //send error response
   }
 };
 
@@ -20,6 +20,7 @@ export const getProductByIdController = async (req, res) => {
       //check if not a number
       //return bad request as response
       return res.status(400).json({
+        success: false,
         message: "Invalid product ID",
       });
     }
@@ -29,14 +30,16 @@ export const getProductByIdController = async (req, res) => {
     //if product not present return not found message
     if (!product) {
       return res.status(404).json({
+        success: false,
         message: "Product not found",
       });
     }
     //if found return product details
     return res.status(200).json({
+      success: true,
       product,
     });
   } catch (err) {
-    return res.status(500).json({ message: err.message }); //send error response
+    return res.status(500).json({ success: false, message: err.message }); //send error response
   }
 };

@@ -3,6 +3,8 @@ import dotenv from 'dotenv'
 import morgan from 'morgan' //import morgan for logging HTTP requests
 import connectDB  from './config/db.js'
 import productRoutes from './routes/products.routes.js'
+import cartRoutes from './routes/cart.routes.js'
+import authRoutes from './routes/auth.routes.js'
 //configure dot env for reading env variables
 dotenv.config()
 // create and listen at port 5000 from env file
@@ -24,6 +26,10 @@ app.get('/' , (req,res)=>{
 
 //route to products
 productRoutes(app)
+//route to cart
+cartRoutes(app)
+//auth routes to register and login
+authRoutes(app)
 
 //DB connection
 connectDB()
