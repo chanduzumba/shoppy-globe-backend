@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import validator from "validator"
+import jwt from "jsonwebtoken";
 import User from "../models/User.models.js";
 
 //register user controller
@@ -55,6 +56,75 @@ export const registerController = async (req, res) => {
     });
   } catch (error) {
     //error response
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//login user controller
+export const loginController = async (req, res) => {
+  try {
+    // read email and pwd from request body
+    const { email, password } = req.body;
+
+    //validation
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    //find user data from model
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+    });
+
+    //return invalid error
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // schema method: to check encrypted password
+    const isMatch = await user.comparePassword(password);
+
+    //invalid password error message
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+
+    //token creation using jwt.sign (header+payload+secret) with expiry
+    const token = jwt.sign(
+      {
+        id: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    //send token in response along with user details
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    //send error message
     return res.status(500).json({
       success: false,
       message: error.message,

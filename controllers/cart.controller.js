@@ -11,16 +11,14 @@ export const addToCartController = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Quantity must be greater than 0" });
     }
-    if (isNaN(productId)) {
-      //check if not a number
-      //return bad request as response
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product ID",
-      });
+     //if product id not valid wrt obect id return error
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product ID" });
     }
     //get product using id
-    const product = await Product.findOne({ id: productId });
+    const product = await Product.findById(productId);
 
     //if product not found return 404
     if (!product) {
@@ -38,9 +36,6 @@ export const addToCartController = async (req, res) => {
       });
     }
 
-    req.user = {
-      id: "6a38897bcb31534ba9fd6c3e",
-    };
     //else find cart for user
     let cart = await Cart.findOne({ user: req.user.id });
 
@@ -54,7 +49,7 @@ export const addToCartController = async (req, res) => {
 
     //if item present in cart - true or false
     const existingItem = cart.items.find((item) =>
-      item.product.equals(product._id),
+      item.product.equals(productId)
     );
 
     //if item present increment quantity
@@ -100,9 +95,7 @@ export const updateCartItemController = async (req, res) => {
   try {
     const { quantity } = req.body;
     const { productId } = req.params;
-    req.user = {
-      id: "6a38897bcb31534ba9fd6c3e",
-    }; //testing
+    
     // if quantity is not more than 0 return error
     if (!Number.isInteger(quantity) || quantity < 1) {
       return res
@@ -158,9 +151,6 @@ export const updateCartItemController = async (req, res) => {
 //remove an item from cart with productid from request param
 export const deleteCartItemController = async (req, res) => {
   try {
-    req.user = {
-      id: "6a38897bcb31534ba9fd6c3e",
-    }; //testing
     const { productId } = req.params;
 
     //product id validation
