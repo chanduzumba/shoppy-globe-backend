@@ -1,6 +1,12 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import Product from "./models/Product.js";
+import Product from "./models/Product.models.js";
+import dns from "dns";
+
+//setting dns servers to avoid dns resolution issues in some environments
+//allow srv records to be resolved properly, especially in environments with custom dns configurations
+//only use this if you are facing dns resolution issues, otherwise it can be omitted
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 //configure env variables earlier
 dotenv.config();

@@ -13,33 +13,34 @@ export const getAllProductsController = async (req, res) => {
 
 //get a single product by id
 export const getProductByIdController = async (req, res) => {
-  //logic to get a product
   try {
-    const productId = req.params.id
-    if (isNaN(productId)) {
-      //check if not a number
-      //return bad request as response
+    const productId = req.params.id;
+    let product;
+
+    //check product id or mongodb _id
+    if (/^[0-9]+$/.test(productId)) {
+      product = await Product.findOne({ id: Number(productId) });
+    } else if (/^[0-9a-fA-F]{24}$/.test(productId)) {
+      product = await Product.findById(productId);
+    } else {
       return res.status(400).json({
         success: false,
         message: "Invalid product ID",
       });
     }
-    // query DB to find one with param id
-    const product = await Product.findOne({ id: productId });
 
-    //if product not present return not found message
     if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found",
       });
     }
-    //if found return product details
+
     return res.status(200).json({
       success: true,
       product,
     });
   } catch (err) {
-    return res.status(500).json({ success: false, message: err.message }); //send error response
+    return res.status(500).json({ success: false, message: err.message });
   }
 };

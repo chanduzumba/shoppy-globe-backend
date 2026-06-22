@@ -18,15 +18,10 @@ export const protect = async (req, res, next) => {
 
     //extract token from header
     const token = authHeader.split(" ")[1];
-    //verify token using jwt.verify and secret key
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    //attach user info to request object for use in controllers
     req.user = {
-      id: decoded.id,
+      id: decoded.id || decoded.userId || decoded._id,
     };
 
     next();

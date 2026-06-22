@@ -202,9 +202,6 @@ export const deleteCartItemController = async (req, res) => {
 //get all cart items controller for a user
 export const getCartItemsController = async (req, res) => {
   try {
-    req.user = {
-      id: "6a38897bcb31534ba9fd6c3e",
-    }; //testing
     //find cart for a user and populate product from product collection
     const cart = await Cart.findOne({
       user: req.user.id,

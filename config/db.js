@@ -1,4 +1,10 @@
 import mongoose from "mongoose"; //importing mongoose to connect with db instance
+import dns from "dns";
+
+//setting dns servers to avoid dns resolution issues in some environments
+//allow srv records to be resolved properly, especially in environments with custom dns configurations
+//only use this if you are facing dns resolution issues, otherwise it can be omitted
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 //function to connect with db instance
 const connectDB = async () => {
