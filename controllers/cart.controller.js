@@ -139,3 +139,55 @@ export const updateCartItemController = async (req, res) => {
     });
   }
 };
+
+//remove an item from cart with productid from request param
+export const deleteCartItemController = async (req, res) => {
+  try {
+    req.user = {
+      id: "6a38897bcb31534ba9fd6c3e",
+    };//testing
+    const { productId } = req.params;
+
+    //product id validation
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ success: false, message: "Invalid Product ID" });
+    }
+    //update after finding item with given product id using pull
+    const updatedCart = await Cart.findOneAndUpdate(
+      {
+        user: req.user.id,
+        "items.product": productId,
+      },
+      {
+        $pull: {
+          items: {
+            product: productId,
+          },
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    //if not found return error
+    if (!updatedCart) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found in cart",
+      });
+    }
+    //else return updated cart successfully
+    return res.status(200).json({
+      success: true,
+      message: "Item removed from cart",
+      cart: updatedCart,
+    });
+  } catch (error) {
+    //return error
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
