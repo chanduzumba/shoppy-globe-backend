@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import Product from "../models/Product.models.js";
 import Cart from "../models/Cart.models.js";
 //add to cart controller
@@ -5,7 +6,7 @@ export const addToCartController = async (req, res) => {
   try {
     const { productId, quantity } = req.body; //destructure productid and quantity
 
-    console.log("prod id", productId)
+    console.log("prod id", productId);
     //get product using id
     const product = await Product.findOne({ id: productId });
 
@@ -25,11 +26,9 @@ export const addToCartController = async (req, res) => {
       });
     }
 
-    
     req.user = {
-      id: "6a38897bcb31534ba9fd6c3e"
-    }
-    console.log(req.user.id)
+      id: "6a38897bcb31534ba9fd6c3e",
+    };
     //else find cart for user
     let cart = await Cart.findOne({ user: req.user.id });
 
@@ -43,7 +42,7 @@ export const addToCartController = async (req, res) => {
 
     //if item present in cart - true or false
     const existingItem = cart.items.find(
-      (item) => item.product.toString() === productId
+      (item) => item.product.toString() === productId,
     );
 
     //if item present increment quantity
@@ -59,7 +58,7 @@ export const addToCartController = async (req, res) => {
 
       existingItem.quantity = newQuantity;
     } else {
-        //push item if all good add to cart
+      //push item if all good add to cart
       cart.items.push({
         product: product._id,
         quantity,
@@ -77,6 +76,63 @@ export const addToCartController = async (req, res) => {
     });
   } catch (error) {
     //return 500 if something is wrong
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//update cart items quantity
+export const updateCartItemController = async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    const { productId } = req.params;
+    req.user = {
+      id: "6a38897bcb31534ba9fd6c3e",
+    };//testing
+    // if quantity is not more than 0 return error
+     if (!Number.isInteger(quantity) || quantity < 1) {
+      return res.status(400).json({ success: false, message: "Quantity must be greater than 0" });
+    }
+
+    //if product id not valid wrt obect id return error
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ success: false, message: "Invalid Product ID" });
+    }
+
+    //get product to check stock
+    const product = await Product.findById(productId);
+    //check if quantity > stock
+    if (quantity > product.stock) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient stock",
+      });
+    }
+
+    //find cart item with productid and update quantity
+    const cart = await Cart.findOneAndUpdate(
+      { user: req.user.id, "items.product": productId },
+      { $set: { "items.$.quantity": quantity } },
+      { new: true }
+    );
+
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: "Item or Cart not found",
+      });
+    }
+    //return success msg
+    return res.status(200).json({
+      success: true,
+      message: "Cart updated",
+      cart,
+    });
+  } catch (error) {
+    //return error msg
     return res.status(500).json({
       success: false,
       message: error.message,
