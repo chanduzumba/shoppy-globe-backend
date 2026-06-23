@@ -106,6 +106,12 @@ After successful execution, you should see:
 > Note: Run the seed script only when you need to populate or refresh the product data.
 
 
+###DNS Set Servers to Avoid Resolution Issues which causes DB connection errors before connecting to MongoDB Atlas. This is especially useful in environments with custom DNS configurations. 
+```javascript
+const dns = require('dns');
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+```
+
 ### Run Development Server
 
 ```bash
